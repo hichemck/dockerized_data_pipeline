@@ -1,0 +1,43 @@
+version: '3'
+services:
+  tweet_collector:
+    build: tweet_collector/
+    volumes:
+    - ./tweet_collector/:/code_tweet
+    - ./logs:/logs
+    depends_on: 
+    - mongodb
+    links:
+    - mongodb
+
+  mongodb:
+    image: mongo
+    ports:
+    - 27017:27017
+   
+  etl:
+    build: etl_job/
+    volumes:
+    - ./etl_job/:/code_etl
+    - ./logs:/logs
+    depends_on: 
+    - mongodb
+    - postgresdb
+
+  postgresdb:
+    image: postgres
+    ports:
+    - 5555:5432
+    environment:
+      POSTGRES_PASSWORD: xxxx
+      POSTGRES_USER: hichem
+      POSTGRES_DB: twitter
+
+  slackbot:
+    build: slackbot_job/
+    volumes:
+    - ./slackbot_job/:/code_slackbot
+    - ./logs:/logs
+    depends_on: 
+    - postgresdb
+    
